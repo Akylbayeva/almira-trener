@@ -177,7 +177,7 @@ footer .btn.ghost{color:var(--bg);border-color:var(--bg)}
 <div id="onl" hidden><label for="otype">Тип занятия</label><select id="otype"><option>Групповая online</option><option>Персональная online</option></select>
 <label for="otime">Удобное время</label><input id="otime" placeholder="Например, будни после 19:00"></div>
 <label for="nm">Ваше имя</label><input id="nm" autocomplete="given-name" placeholder="Как к вам обращаться">
-<button class="btn" id="send">Отправить в WhatsApp</button>
+<a class="btn" id="send" href="#" target="_blank" rel="noopener">Отправить в WhatsApp</a>
 <button class="x" id="close">Отмена</button>
 </div></div>
 
@@ -204,22 +204,22 @@ function slots(){var d=dates[state.d],out='';
   var isO=f.id==="onl",l=isO?0:left(f,d),ws=f.wins||[f.time||""];ws.forEach(function(w){var p=w.split("–");
   out+='<div class="slot"><div class="t">'+(isO?"●":p[0])+(p[1]?'<small>до '+p[1]+'</small>':'')+'</div><div><b>'+f.name+'</b><span>'+f.kind+(f.addr?'<br>'+f.addr:'')+'</span><br><span class="left">'+(isO?"Время обсудим":(f.ind?"Свободное время, час выберем вместе":"Свободно мест: "+l))+'</span></div><button class="btn" data-f="'+f.id+'" data-w="'+w+'">Записаться</button></div>'})});
  document.getElementById("slots").innerHTML=out||'<div class="empty">В этот день занятий нет. Выберите другой день или формат.</div>';
- document.querySelectorAll("#slots .btn").forEach(function(b){b.onclick=function(){open(b.dataset.f,b.dataset.w)}})}
+ document.querySelectorAll("#slots .btn").forEach(function(b){b.onclick=function(){openSheet(b.dataset.f,b.dataset.w)}})}
 function render(){tabs();daysUI();slots()}
-function open(id,w){var f=FMT.filter(function(x){return x.id===id})[0],d=dates[state.d];picked=f;
+function openSheet(id,w){var f=FMT.filter(function(x){return x.id===id})[0],d=dates[state.d];picked=f;
  var ds=DN[d.getDay()]+", "+d.getDate()+" "+MN[d.getMonth()];
  document.getElementById("sum").textContent=f.name+" · "+ds+(w?" · "+w:(f.time?" · "+f.time:""));
  var sh=f.id==="onl"||f.id==="iron";document.getElementById("onl").hidden=!sh;if(sh){var io=f.id==="iron";document.getElementById("otype").innerHTML=io?"<option>Индивидуальная тренировка</option><option>Мини-группа (до 4 человек)</option>":"<option>Групповая online</option><option>Персональная online</option>";document.getElementById("otime").placeholder=io?"Во сколько вам удобно в этом окне":"Например, будни после 19:00"}
- document.getElementById("sheet").classList.add("on");document.getElementById("nm").focus();picked.ds=ds;picked.w=w||f.time||""}
+ document.getElementById("sheet").classList.add("on");document.getElementById("nm").focus();picked.ds=ds;picked.w=w||f.time||"";buildLink()}
 function shut(){document.getElementById("sheet").classList.remove("on")}
 document.getElementById("close").onclick=shut;
 document.getElementById("sheet").onclick=function(e){if(e.target.id==="sheet")shut()};
 document.addEventListener("keydown",function(e){if(e.key==="Escape")shut()});
-document.getElementById("send").onclick=function(){
+function buildLink(){
  var n=document.getElementById("nm").value.trim()||"(имя не указано)";
  var t="Здравствуйте, Альмира! Меня зовут "+n+". Хочу записаться: "+picked.name+", "+picked.ds+(picked.w?", "+picked.w:"")+".";
  if(picked.id==="onl"||picked.id==="iron")t+=" Формат: "+document.getElementById("otype").value+". Удобное время: "+(document.getElementById("otime").value||"обсудим")+".";
- window.open(link(t),"_blank");shut()};
+ document.getElementById("send").href=link(t)};["nm","otype","otime"].forEach(function(i){var e=document.getElementById(i);e.addEventListener("input",buildLink);e.addEventListener("change",buildLink)});document.getElementById("send").addEventListener("click",function(){buildLink();setTimeout(shut,400)});
 render();
 </script>
 </body></html>
